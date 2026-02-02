@@ -1,0 +1,11 @@
+{
+	"id": "datestamp",
+	"name": "Datestamp",
+	"version": "1.0.0",
+	"minAppVersion": "1.0.0",
+	"description": "Automatically prefix new note names with today's date.",
+	"author": "Long Hoang",
+	"authorUrl": "https://github.com/huynhtranhoanglong",
+	"fundingUrl": "https://paypal.me/huynhtranhoanglong",
+	"isDesktopOnly": false
+}

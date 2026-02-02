@@ -1,0 +1,23 @@
+{
+    "name": "obsidian-datestamp-plugin",
+    "version": "1.0.0",
+    "description": "Obsidian plugin that prefixes new note names with today's date",
+    "main": "main.js",
+    "scripts": {
+        "dev": "node esbuild.config.mjs",
+        "build": "node esbuild.config.mjs production"
+    },
+    "keywords": [
+        "obsidian",
+        "plugin",
+        "datestamp"
+    ],
+    "author": "Long Hoang",
+    "license": "MIT",
+    "devDependencies": {
+        "@types/node": "^20.0.0",
+        "esbuild": "^0.20.0",
+        "obsidian": "latest",
+        "typescript": "^5.3.0"
+    }
+}
