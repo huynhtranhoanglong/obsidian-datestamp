@@ -113,7 +113,6 @@ var DatestampSettingTab = class extends import_obsidian.PluginSettingTab {
   display() {
     const { containerEl } = this;
     containerEl.empty();
-    new import_obsidian.Setting(containerEl).setName("Datestamp settings").setHeading();
     new import_obsidian.Setting(containerEl).setName("Date format").setDesc("Format for the date prefix. Uses Moment.js format (e.g., YYYY-MM-DD, DD/MM/YYYY)").addText((text) => text.setPlaceholder("YYYY-MM-DD").setValue(this.plugin.settings.dateFormat).onChange(async (value) => {
       this.plugin.settings.dateFormat = value || DEFAULT_SETTINGS.dateFormat;
       await this.plugin.saveSettings();

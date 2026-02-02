@@ -137,13 +137,10 @@ class DatestampSettingTab extends PluginSettingTab {
 
         containerEl.empty();
 
-        // FIX #4: Use new Setting().setName().setHeading() instead of createEl('h2')
-        new Setting(containerEl)
-            .setName('Datestamp settings')
-            .setHeading();
+        // Settings are displayed directly without a heading
+        // (Obsidian guidelines: avoid plugin name and "settings" in headings)
 
         new Setting(containerEl)
-            // FIX #5: Use sentence case for UI text
             .setName('Date format')
             .setDesc('Format for the date prefix. Uses Moment.js format (e.g., YYYY-MM-DD, DD/MM/YYYY)')
             .addText(text => text
@@ -180,7 +177,7 @@ class DatestampSettingTab extends PluginSettingTab {
         new Setting(containerEl)
             .setName('Preview')
             .setHeading();
-        
+
         // Display preview text
         containerEl.createEl('p', {
             text: `New notes will be named: ${this.plugin.generateDatestampedName()}`,
