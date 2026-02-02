@@ -39,7 +39,7 @@ var DatestampPlugin = class extends import_obsidian.Plugin {
     this.registerEvent(
       this.app.vault.on("create", (file) => {
         if (file instanceof import_obsidian.TFile) {
-          this.handleNewFile(file);
+          void this.handleNewFile(file);
         }
       })
     );
@@ -62,6 +62,7 @@ var DatestampPlugin = class extends import_obsidian.Plugin {
   /**
    * Handle new file creation - rename if it's an "Untitled" note
    */
+  // FIX #2: Add await expression in async method
   async handleNewFile(file) {
     if (this.isRenaming)
       return;
@@ -70,39 +71,38 @@ var DatestampPlugin = class extends import_obsidian.Plugin {
     const basename = file.basename;
     if (!basename.startsWith("Untitled"))
       return;
-    setTimeout(async () => {
-      const currentFile = this.app.vault.getAbstractFileByPath(file.path);
-      if (!currentFile || !(currentFile instanceof import_obsidian.TFile)) {
-        return;
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    const currentFile = this.app.vault.getAbstractFileByPath(file.path);
+    if (!currentFile || !(currentFile instanceof import_obsidian.TFile)) {
+      return;
+    }
+    if (!currentFile.basename.startsWith("Untitled")) {
+      return;
+    }
+    if (this.isRenaming)
+      return;
+    this.isRenaming = true;
+    try {
+      const datestampedName = this.generateDatestampedName();
+      let newBasename = datestampedName;
+      const match = currentFile.basename.match(/^Untitled(\s+\d+)?$/);
+      if (match && match[1]) {
+        newBasename = datestampedName + match[1];
       }
-      if (!currentFile.basename.startsWith("Untitled")) {
-        return;
+      const folderPath = currentFile.parent ? currentFile.parent.path : "";
+      let newPath = folderPath ? `${folderPath}/${newBasename}.md` : `${newBasename}.md`;
+      let counter = 1;
+      while (this.app.vault.getAbstractFileByPath(newPath)) {
+        const uniqueName = `${datestampedName} ${counter}`;
+        newPath = folderPath ? `${folderPath}/${uniqueName}.md` : `${uniqueName}.md`;
+        counter++;
       }
-      if (this.isRenaming)
-        return;
-      this.isRenaming = true;
-      try {
-        const datestampedName = this.generateDatestampedName();
-        let newBasename = datestampedName;
-        const match = currentFile.basename.match(/^Untitled(\s+\d+)?$/);
-        if (match && match[1]) {
-          newBasename = datestampedName + match[1];
-        }
-        const folderPath = currentFile.parent ? currentFile.parent.path : "";
-        let newPath = folderPath ? `${folderPath}/${newBasename}.md` : `${newBasename}.md`;
-        let counter = 1;
-        while (this.app.vault.getAbstractFileByPath(newPath)) {
-          const uniqueName = `${datestampedName} ${counter}`;
-          newPath = folderPath ? `${folderPath}/${uniqueName}.md` : `${uniqueName}.md`;
-          counter++;
-        }
-        await this.app.fileManager.renameFile(currentFile, newPath);
-      } catch (error) {
-        console.error("Datestamp: Error renaming file", error);
-      } finally {
-        this.isRenaming = false;
-      }
-    }, 500);
+      await this.app.fileManager.renameFile(currentFile, newPath);
+    } catch (error) {
+      console.error("Datestamp: Error renaming file", error);
+    } finally {
+      this.isRenaming = false;
+    }
   }
 };
 var DatestampSettingTab = class extends import_obsidian.PluginSettingTab {
@@ -113,7 +113,7 @@ var DatestampSettingTab = class extends import_obsidian.PluginSettingTab {
   display() {
     const { containerEl } = this;
     containerEl.empty();
-    containerEl.createEl("h2", { text: "Datestamp settings" });
+    new import_obsidian.Setting(containerEl).setName("Datestamp settings").setHeading();
     new import_obsidian.Setting(containerEl).setName("Date format").setDesc("Format for the date prefix. Uses Moment.js format (e.g., YYYY-MM-DD, DD/MM/YYYY)").addText((text) => text.setPlaceholder("YYYY-MM-DD").setValue(this.plugin.settings.dateFormat).onChange(async (value) => {
       this.plugin.settings.dateFormat = value || DEFAULT_SETTINGS.dateFormat;
       await this.plugin.saveSettings();
@@ -126,8 +126,8 @@ var DatestampSettingTab = class extends import_obsidian.PluginSettingTab {
       this.plugin.settings.defaultName = value || DEFAULT_SETTINGS.defaultName;
       await this.plugin.saveSettings();
     }));
-    containerEl.createEl("h3", { text: "Preview" });
-    const previewEl = containerEl.createEl("p", {
+    new import_obsidian.Setting(containerEl).setName("Preview").setHeading();
+    containerEl.createEl("p", {
       text: `New notes will be named: ${this.plugin.generateDatestampedName()}`,
       cls: "setting-item-description"
     });
